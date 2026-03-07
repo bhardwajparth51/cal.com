@@ -1,4 +1,3 @@
-import { generateSecret } from "@calcom/platform-libraries";
 import type { Membership, Team, User } from "@calcom/prisma/client";
 import { AccessScope, OAuthClientStatus, OAuthClientType } from "@calcom/prisma/enums";
 import type { INestApplication } from "@nestjs/common";
@@ -146,12 +145,10 @@ describe("OAuth2 Controller Endpoints", () => {
         accepted: true,
       });
 
-      const [hashedSecret] = generateSecret(testClientSecret);
       oAuthClient = await oAuthClientFixture.create({
         clientId: testClientId,
         name: "Test OAuth Client",
         redirectUri: testRedirectUri,
-        clientSecret: hashedSecret,
         clientType: OAuthClientType.CONFIDENTIAL,
         userId: clientOwner.id,
       });
@@ -519,13 +516,10 @@ describe("OAuth2 Controller Endpoints", () => {
         accepted: true,
       });
 
-      const [hashedSecret] = generateSecret(testClientSecret);
-
       pendingClient = await oAuthClientFixture.create({
         clientId: pendingClientId,
         name: "Pending OAuth Client",
         redirectUri: testRedirectUri,
-        clientSecret: hashedSecret,
         clientType: OAuthClientType.CONFIDENTIAL,
         status: OAuthClientStatus.PENDING,
         userId: owner.id,
@@ -535,7 +529,6 @@ describe("OAuth2 Controller Endpoints", () => {
         clientId: rejectedClientId,
         name: "Rejected OAuth Client",
         redirectUri: testRedirectUri,
-        clientSecret: hashedSecret,
         clientType: OAuthClientType.CONFIDENTIAL,
         status: OAuthClientStatus.REJECTED,
         userId: owner.id,
