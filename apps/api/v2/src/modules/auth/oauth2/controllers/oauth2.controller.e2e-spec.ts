@@ -1,5 +1,6 @@
 import type { Membership, Team, User } from "@calcom/prisma/client";
 import { AccessScope, OAuthClientStatus, OAuthClientType } from "@calcom/prisma/enums";
+import { createHash } from "node:crypto";
 import type { INestApplication } from "@nestjs/common";
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import type { TestingModule } from "@nestjs/testing";
@@ -99,8 +100,10 @@ describe("OAuth2 Controller Endpoints", () => {
         authenticatedUser.id,
         testRedirectUri,
         scopes,
+        undefined, // state
+        teamSlug || team.slug || undefined,
         codeChallenge,
-        teamSlug || team.slug || undefined
+        codeChallenge ? "S256" : undefined
       );
       const redirectUrl = new URL(result.redirectUrl);
       return redirectUrl.searchParams.get("code") as string;
@@ -185,9 +188,8 @@ describe("OAuth2 Controller Endpoints", () => {
     describe("POST /api/v2/auth/oauth2/token (authorization_code grant)", () => {
       describe("Positive tests", () => {
         it("should exchange authorization code for tokens", async () => {
-          const codeVerifier = "test-verifier";
-          const codeChallenge = "test-challenge";
-
+          const codeVerifier = "test-verifier-that-is-long-enough-for-pkce-standard";
+          const codeChallenge = createHash("sha256").update(codeVerifier).digest("base64url");
           const authorizationCode = await generateAuthCode(
             [AccessScope.READ_BOOKING, AccessScope.READ_PROFILE],
             undefined,
@@ -301,7 +303,8 @@ describe("OAuth2 Controller Endpoints", () => {
         });
 
         it("should return 400 for missing code_verifier (PKCE mandatory)", async () => {
-          const codeChallenge = "test-challenge";
+          const codeVerifier = "test-verifier-that-is-long-enough-for-pkce-standard";
+          const codeChallenge = createHash("sha256").update(codeVerifier).digest("base64url");
           const code = await generateAuthCode(undefined, undefined, codeChallenge);
 
           const response = await request(app.getHttpServer())
@@ -485,7 +488,10 @@ describe("OAuth2 Controller Endpoints", () => {
         owner.id,
         testRedirectUri,
         scopes,
-        codeChallenge
+        undefined, // state
+        undefined, // teamSlug
+        codeChallenge,
+        codeChallenge ? "S256" : undefined
       );
       const redirectUrl = new URL(result.redirectUrl);
       return redirectUrl.searchParams.get("code") as string;
