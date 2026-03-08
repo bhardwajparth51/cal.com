@@ -10,7 +10,7 @@ type AddClientOptions = {
 };
 
 export const createClientHandler = async ({ ctx, input }: AddClientOptions) => {
-  const { name, purpose, redirectUri, logo, websiteUrl, enablePkce } = input;
+  const { name, purpose, redirectUri, logo, websiteUrl } = input;
 
   const oAuthClientRepository = new OAuthClientRepository(ctx.prisma);
 

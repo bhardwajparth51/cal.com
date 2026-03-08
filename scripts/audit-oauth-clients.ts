@@ -59,8 +59,14 @@ async function auditConfidentialClients() {
     // Save to CSV for operator outreach
     const csvHeader = "App Name,Client ID,Owner Name,Owner Email,Created At\n";
     
-    // Helper to escape CSV fields to prevent injection
-    const escapeCsv = (str: string) => `"${str.replace(/"/g, '""')}"`;
+    // Helper to escape CSV fields to prevent injection (quotes and formula characters)
+    const escapeCsv = (str: string) => {
+      const escaped = `"${str.replace(/"/g, '""')}"`;
+      if (str.startsWith('=') || str.startsWith('+') || str.startsWith('-') || str.startsWith('@')) {
+        return `'${escaped}`;
+      }
+      return escaped;
+    };
 
     const csvRows = report.map(r => 
       `${escapeCsv(r.name)},${escapeCsv(r.clientId)},${escapeCsv(r.ownerName)},${escapeCsv(r.ownerEmail)},${escapeCsv(r.createdAt)}`
