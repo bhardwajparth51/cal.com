@@ -219,8 +219,8 @@ describe("OAuth2 Controller Endpoints", () => {
         });
 
         it("should exchange authorization code for tokens with JSON body", async () => {
-          const codeVerifier = "test-verifier";
-          const codeChallenge = "test-challenge";
+          const codeVerifier = "test-verifier-that-is-long-enough-for-pkce-standard";
+          const codeChallenge = createHash("sha256").update(codeVerifier).digest("base64url");
 
           const code = await generateAuthCode(undefined, undefined, codeChallenge);
 
@@ -241,8 +241,8 @@ describe("OAuth2 Controller Endpoints", () => {
         });
 
         it("should exchange authorization code for tokens with application/x-www-form-urlencoded body", async () => {
-          const codeVerifier = "test-verifier";
-          const codeChallenge = "test-challenge";
+          const codeVerifier = "test-verifier-that-is-long-enough-for-pkce-standard";
+          const codeChallenge = createHash("sha256").update(codeVerifier).digest("base64url");
 
           const code = await generateAuthCode(undefined, undefined, codeChallenge);
 
@@ -267,8 +267,8 @@ describe("OAuth2 Controller Endpoints", () => {
 
       describe("Negative tests", () => {
         it("should return 400 with RFC 6749 error for invalid/used authorization code", async () => {
-          const codeVerifier = "test-verifier";
-          const codeChallenge = "test-challenge";
+          const codeVerifier = "test-verifier-that-is-long-enough-for-pkce-standard";
+          const codeChallenge = createHash("sha256").update(codeVerifier).digest("base64url");
 
           const code = await generateAuthCode(undefined, undefined, codeChallenge);
 
@@ -564,8 +564,8 @@ describe("OAuth2 Controller Endpoints", () => {
     });
 
     it("should exchange authorization code for tokens with PENDING client owned by user", async () => {
-      const codeVerifier = "test-verifier";
-      const codeChallenge = "test-challenge";
+      const codeVerifier = "test-verifier-that-is-long-enough-for-pkce-standard";
+      const codeChallenge = createHash("sha256").update(codeVerifier).digest("base64url");
       const code = await generateAuthCodeForClient(pendingClientId, undefined, codeChallenge);
 
       const response = await request(app.getHttpServer())
@@ -586,8 +586,8 @@ describe("OAuth2 Controller Endpoints", () => {
     });
 
     it("should refresh tokens with PENDING client owned by user", async () => {
-      const codeVerifier = "test-verifier";
-      const codeChallenge = "test-challenge";
+      const codeVerifier = "test-verifier-that-is-long-enough-for-pkce-standard";
+      const codeChallenge = createHash("sha256").update(codeVerifier).digest("base64url");
       const code = await generateAuthCodeForClient(pendingClientId, undefined, codeChallenge);
 
       const tokenResponse = await request(app.getHttpServer())
@@ -622,8 +622,8 @@ describe("OAuth2 Controller Endpoints", () => {
     });
 
     it("should reject token exchange when client becomes rejected", async () => {
-      const codeVerifier = "test-verifier";
-      const codeChallenge = "test-challenge";
+      const codeVerifier = "test-verifier-that-is-long-enough-for-pkce-standard";
+      const codeChallenge = createHash("sha256").update(codeVerifier).digest("base64url");
       const code = await generateAuthCodeForClient(pendingClientId, undefined, codeChallenge);
 
       await oAuthClientFixture.updateStatus(pendingClientId, OAuthClientStatus.REJECTED);
@@ -647,8 +647,8 @@ describe("OAuth2 Controller Endpoints", () => {
     });
 
     it("should reject token refresh when client becomes rejected", async () => {
-      const codeVerifier = "test-verifier";
-      const codeChallenge = "test-challenge";
+      const codeVerifier = "test-verifier-that-is-long-enough-for-pkce-standard";
+      const codeChallenge = createHash("sha256").update(codeVerifier).digest("base64url");
       const code = await generateAuthCodeForClient(pendingClientId, undefined, codeChallenge);
 
       const tokenResponse = await request(app.getHttpServer())
