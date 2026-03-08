@@ -73,7 +73,7 @@ describe("submitClientHandler", () => {
       redirectUri: createdClient.redirectUri,
       logo: createdClient.logo,
       websiteUrl: "https://example.com",
-      enablePkce: true,
+      enablePkce: false,
     };
 
     const result = await submitClientForReviewHandler({ ctx, input });
