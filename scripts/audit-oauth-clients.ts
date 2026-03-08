@@ -1,4 +1,4 @@
-import { PrismaClient } from "@calcom/prisma";
+import { prisma } from "@calcom/prisma";
 import fs from "node:fs";
 
 /**
@@ -16,8 +16,6 @@ import fs from "node:fs";
  * this deployment is AT RISK of breaking if they haven't manually updated their app code to use PKCE.
  */
 async function auditConfidentialClients() {
-  const prisma = new PrismaClient();
-  
   try {
     console.log("Starting audit of at-risk OAuth Clients...");
 
@@ -56,11 +54,17 @@ async function auditConfidentialClients() {
       createdAt: c.createdAt.toISOString()
     }));
 
-    console.table(report);
+    console.table(report.map(({ ownerEmail: _ownerEmail, ownerName: _ownerName, ...safe }) => safe));
 
     // Save to CSV for operator outreach
     const csvHeader = "App Name,Client ID,Owner Name,Owner Email,Created At\n";
-    const csvRows = report.map(r => `"${r.name}","${r.clientId}","${r.ownerName}","${r.ownerEmail}","${r.createdAt}"`).join("\n");
+    
+    // Helper to escape CSV fields to prevent injection
+    const escapeCsv = (str: string) => `"${str.replace(/"/g, '""')}"`;
+
+    const csvRows = report.map(r => 
+      `${escapeCsv(r.name)},${escapeCsv(r.clientId)},${escapeCsv(r.ownerName)},${escapeCsv(r.ownerEmail)},${escapeCsv(r.createdAt)}`
+    ).join("\n");
     
     fs.writeFileSync("at-risk-oauth-clients.csv", csvHeader + csvRows);
     console.log("\n📄 Saved detailed report to 'at-risk-oauth-clients.csv'.");
@@ -68,8 +72,9 @@ async function auditConfidentialClients() {
 
   } catch (error) {
     console.error("Audit failed:", error);
+    process.exit(1);
   } finally {
-    await prisma.$disconnect();
+    // prisma instance is shared, we don't necessarily need to disconnect here in a script that ends
   }
 }
 

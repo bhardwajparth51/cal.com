@@ -1,6 +1,6 @@
 # OAuth Security Update: PKCE Required for All Clients
 
-In our continuous effort to improve the security of the Cal.com platform, we are updating our OAuth flow requirements. As of [DEPLOYMENT_DATE], the legacy `client_secret` authentication mechanism for `CONFIDENTIAL` OAuth clients has been deprecated and completely removed. 
+In our continuous effort to improve the security of the Cal.com platform, we are updating our OAuth flow requirements. As of the next release, the legacy `client_secret` authentication mechanism for `CONFIDENTIAL` OAuth clients has been deprecated and completely removed. 
 
 **Proof Key for Code Exchange (PKCE) is now explicitly required for all OAuth clients, regardless of type.**
 
